@@ -1,4 +1,5 @@
-package org.cordovaDriveSync;
+package googleDriveSync;
+import android.util.Log;
 
 import com.google.common.base.Charsets;
 
@@ -13,94 +14,99 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
-/**
- * Created by techbrain on 09/30/16.
- */
 public class IOUtils {
-    /**
-     * Writes the given string to a {@link File}.
-     *
-     * @param data The data to be written to the File.
-     * @param file The File to write to.
-     * @throws IOException
-     */
     public static void writeToFile(String data, File file) throws IOException {
         writeToFile(data.getBytes(Charsets.UTF_8), file);
     }
-    /**
-     * Write the given bytes to a {@link File}.
-     *
-     * @param data The bytes to be written to the File.
-     * @param file The {@link File} to be used for writing the data.
-     * @throws IOException
-     */
+
     public static void writeToFile(byte[] data, File file) throws IOException {
+        Throwable th;
         FileOutputStream os = null;
         try {
-            os = new FileOutputStream(file);
-            os.write(data);
-            os.flush();
-            // Perform an fsync on the FileOutputStream.
-            os.getFD().sync();
-        } finally {
+            FileOutputStream os2 = new FileOutputStream(file);
+            try {
+                os2.write(data);
+                os2.flush();
+                os2.getFD().sync();
+                if (os2 != null) {
+                    os2.close();
+                }
+            } catch (Throwable th2) {
+                th = th2;
+                os = os2;
+                if (os != null) {
+                    os.close();
+                }
+                throw th;
+            }
+        } catch (Throwable th3) {
+            th = th3;
             if (os != null) {
                 os.close();
             }
+            Log.e("Exeption", "Exception while activity", th);
         }
     }
-    /**
-     * Write the given content to an {@link OutputStream}
-     * <p/>
-     * Note: This method closes the given OutputStream.
-     *
-     * @param content The String content to write to the OutputStream.
-     * @param os The OutputStream to which the content should be written.
-     * @throws IOException
-     */
+
     public static void writeToStream(String content, OutputStream os) throws IOException {
+        Throwable th;
         BufferedWriter writer = null;
         try {
-            writer = new BufferedWriter(new OutputStreamWriter(os, Charsets.UTF_8));
-            writer.write(content);
-        } finally {
+            BufferedWriter writer2 = new BufferedWriter(new OutputStreamWriter(os, Charsets.UTF_8));
+            try {
+                writer2.write(content);
+                if (writer2 != null) {
+                    writer2.close();
+                }
+            } catch (Throwable th2) {
+                th = th2;
+                writer = writer2;
+                if (writer != null) {
+                    writer.close();
+                }
+                throw th;
+            }
+        } catch (Throwable th3) {
+            th = th3;
             if (writer != null) {
                 writer.close();
             }
+            Log.e("Exeption", "Exception while activity", th);
         }
     }
-    /**
-     * Reads a {@link File} as a String
-     *
-     * @param file The file to be read in.
-     * @return Returns the contents of the File as a String.
-     * @throws IOException
-     */
+
     public static String readFileAsString(File file) throws IOException {
         return readAsString(new FileInputStream(file));
     }
 
-    /**
-     * Reads an {@link InputStream} into a String using the UTF-8 encoding.
-     * Note that this method closes the InputStream passed to it.
-     *
-     *
-     * @param is The InputStream to be read.
-     * @return The contents of the InputStream as a String.
-     * @throws IOException
-     */
     public static String readAsString(InputStream is) throws IOException {
+        Throwable th;
         BufferedReader reader = null;
         StringBuilder sb = new StringBuilder();
         try {
-            String line;
-            reader = new BufferedReader(new InputStreamReader(is, Charsets.UTF_8));
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
+            BufferedReader reader2 = new BufferedReader(new InputStreamReader(is, Charsets.UTF_8));
+            while (true) {
+                try {
+                    String line = reader2.readLine();
+                    if (line == null) {
+                        break;
+                    }
+                    sb.append(line);
+                } catch (Throwable th2) {
+                    th = th2;
+                    reader = reader2;
+                }
             }
-        } finally {
+            if (reader2 != null) {
+                reader2.close();
+            }
+
+        } catch (Throwable th3) {
+            th = th3;
             if (reader != null) {
                 reader.close();
             }
+            Log.e("Exeption", "Exception while activity", th);
         }
         return sb.toString();
     }
